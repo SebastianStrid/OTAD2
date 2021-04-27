@@ -106,10 +106,10 @@ class GUI:
         self.LbDelagare.config(yscrollcommand=self.ScbDelagare.set)
         self.LbMaskiner.config(yscrollcommand=self.ScbDMaskiner.set)
 
-        self.BtnMiljodeklaration = Button(home, text="Miljödeklaration", command=lambda:self.miljodeklaration(self.LbMaskiner.get(self.LbMaskiner.curselection())))
+        self.BtnMiljodeklaration = Button(home, text="Miljödeklaration", command=lambda:self.miljodeklaration())
         self.BtnMiljodeklaration.grid(row=4, column=4, pady=(10,0), padx=(0,15), sticky=E, columnspan=2)
 
-        self.BtnMaskinpresentation = Button(home, text="Maskinpresentation",command=lambda:self.maskinpresentation(self.LbMaskiner.get(self.LbMaskiner.curselection())))
+        self.BtnMaskinpresentation = Button(home, text="Maskinpresentation",command=lambda:self.maskinpresentation())
         self.BtnMaskinpresentation.grid(row=4, column=2, pady=(10,0), padx=(0,10), sticky=E, columnspan=2)
 
         self.EntSokTillbehor = Entry(home, width= 10)
@@ -321,8 +321,12 @@ class GUI:
 
             self.LbMaskiner.insert("end",s )
     #Funktion som skapar PDF-rapporten miljödeklaration
-    def miljodeklaration(self, maskinnummer):
-
+    def miljodeklaration(self):
+        maskinnummer=""
+        try:
+            maskinnummer = self.LbMaskiner.get(self.LbMaskiner.curselection())
+        except:
+            pass
         if len(maskinnummer) == 0:
             messagebox.showerror("Fel", "Ingen maskin är vald.")
         
@@ -486,8 +490,12 @@ class GUI:
             outputStream.close()
             os.startfile("Miljödeklaration - " + str(maskinnummer) + ".pdf" )
     #Funktion som skapar PDF-rapporten maskinpresentation
-    def maskinpresentation(self, maskinnummer):     
-
+    def maskinpresentation(self):
+        maskinnummer =""
+        try:     
+            maskinnummer=self.LbMaskiner.get(self.LbMaskiner.curselection())
+        except:
+            pass
         if len(maskinnummer) == 0:
             messagebox.showerror("Fel", "Ingen maskin är vald.")
         
@@ -548,9 +556,12 @@ class GUI:
             c.drawString(467, 710, str(maskin))
             
             counter = 0
+            print(tillbehor)
             for x in tillbehor:
                 counter +=1
+                
                 s = x[0]
+                
                 if(counter == len(tillbehor)):
                         s+=""
                 else:
