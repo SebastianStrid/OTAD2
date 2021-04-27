@@ -50,11 +50,23 @@ class DB():
             row = cursor.fetchone()
         cursor.close()
         return row
+
+    def insert(self, sql ,args):
+        cursor = self.query(sql, args)
+        id = cursor.lastrowid
+        self.connection.commit()
+        cursor.close()
+        return id
     
-    def update(self, sql,args):
-        pass
+    def update(self,sql,args):
+        cursor = self.query(sql, args)
+        rowcount = cursor.rowcount
+        self.connection.commit()
+        cursor.close()
+        return rowcount
 
     def __del__(self):
+        print("Anslutningen bruten.")
         if self.connection!=None:
             self.connection.close()
 
@@ -591,13 +603,10 @@ class GUI:
             outputStream.close()
             #Öppnar dokumentet efter man skapat det. Måste ändra sökväg efter vi fixat servern.
             os.startfile("Maskinpresentation - " + maskinnummer + ".pdf" )
-#Globala variabler
-global cursor
-filePath = None
-imgNyBild = None
-medlemsnummer = ""
-maskinnummer = ""
-forarid = ""
+
+    def on_closing():
+        pass
+
 
 
 #Dessa körs endast när denna fil körs som main. Om denna någon gång importeras till en annan fil så kommer dessa funktioner ej köras direkt.
