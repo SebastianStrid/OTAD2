@@ -67,11 +67,10 @@ class DB():
         return rowcount
     #Stänger ner anslutningen när den inte används längre. Garbage collectas.
     def __del__(self):
-        print("Anslutningen bruten.")
         if self.connection!=None:
             self.connection.close()
 
-#Skapar en GUI klass, där allt 
+#Skapar en GUI klass, allt utseende och majoriteten av funktionerna skapas här.
 class GUI:
     
     def __init__(self, master):
@@ -122,58 +121,60 @@ class GUI:
     #Hämtar maskinerna som har ett tillbehör kopplat till sig vilket liknar tillbehöret man skrivit in i sökrutan.
     def hamtaMaskinerGenomTillbehor(self):
         entry = '{}%'.format(self.EntSokTillbehor.get())
-        
-        sql_query="""SELECT Maskinnummer, MarkeModell, Arsmodell FROM maskinregister WHERE maskinnummer in (select maskinnummer from tillbehor where tillbehor like %s)"""
-        databas = DB(db_config)
-        result =databas.fetch(sql_query, (entry,))        
-        
-            
-        if self.LbMaskiner.index("end") != 0:
-            self.LbMaskiner.delete(0, "end")
-            for item in result:
-                item = list(item)
-                if item[1] == None:
-                        item[1] = ""
-                if item[2] == None:
-                        item[2] = ""
-                
-                s=""
-                s += str(item[0])
-                if item[1] == "":
-                        s+= ""
-                else:
-                        s+= " - "
-                        s+=str(item[1])
-                if item[2] == "":
-                        s+= " "
-                else:
-                        s+= " - "
-                        s+=str(item[2])
-                        
-                self.LbMaskiner.insert("end",s )
-
+        if len(entry)==0:
+            messagebox.showerror("Fel", "Du måste skriva i något i Tillbehörs sökrutan.") 
         else:
-            for item in result:
-                item = list(item)
-                if item[1] == None:
-                        item[1] = ""
-                if item[2] == None:
-                        item[2] = ""
+            sql_query="""SELECT Maskinnummer, MarkeModell, Arsmodell FROM maskinregister WHERE maskinnummer in (select maskinnummer from tillbehor where tillbehor like %s)"""
+            databas = DB(db_config)
+            result =databas.fetch(sql_query, (entry,))        
+            
                 
-                s=""
-                s += str(item[0])
-                if item[1] == "":
-                        s+= ""
-                else:
-                        s+= " - "
-                        s+=str(item[1])
-                if item[2] == "":
-                        s+= " "
-                else:
-                        s+= " - "
-                        s+=str(item[2])
-                                                
-                self.LbMaskiner.insert("end",s )
+            if self.LbMaskiner.index("end") != 0:
+                self.LbMaskiner.delete(0, "end")
+                for item in result:
+                    item = list(item)
+                    if item[1] == None:
+                            item[1] = ""
+                    if item[2] == None:
+                            item[2] = ""
+                    
+                    s=""
+                    s += str(item[0])
+                    if item[1] == "":
+                            s+= ""
+                    else:
+                            s+= " - "
+                            s+=str(item[1])
+                    if item[2] == "":
+                            s+= " "
+                    else:
+                            s+= " - "
+                            s+=str(item[2])
+                            
+                    self.LbMaskiner.insert("end",s )
+
+            else:
+                for item in result:
+                    item = list(item)
+                    if item[1] == None:
+                            item[1] = ""
+                    if item[2] == None:
+                            item[2] = ""
+                    
+                    s=""
+                    s += str(item[0])
+                    if item[1] == "":
+                            s+= ""
+                    else:
+                            s+= " - "
+                            s+=str(item[1])
+                    if item[2] == "":
+                            s+= " "
+                    else:
+                            s+= " - "
+                            s+=str(item[2])
+                                                    
+                    self.LbMaskiner.insert("end",s )
     #Hämtar alla maskiner när programmet körs och fyller på LbMaskiner listan.
     def hamtaAllaMaskiner(self):
         selectedDelagare = self.LbDelagare.get(self.LbDelagare.curselection())
@@ -328,12 +329,10 @@ class GUI:
         except:
             pass
         if len(maskinnummer) == 0:
-            messagebox.showerror("Fel", "Ingen maskin är vald.")
-        
+            messagebox.showerror("Fel", "Ingen maskin är vald.")    
         else:
             maskin_sql_query = """select * from maskinregister where maskinnummer = %s"""
-
-            
+           
             indexSpace = maskinnummer.index(" ")
             stringSelectedDelagare = str(maskinnummer[0:indexSpace])
             maskin = "".join(stringSelectedDelagare)
@@ -511,8 +510,6 @@ class GUI:
 
             foretags_sql_query = """SELECT Foretagsnamn FROM foretagsregister WHERE medlemsnummer = %s"""
             foretag = databas.fetch(foretags_sql_query,(str(maskin_resultat[0][0]),))
-
-            print(maskin)
             
             tillbehor_sql_query="""SELECT tillbehor FROM tillbehor WHERE Maskinnummer =%s"""           
             tillbehor = databas.fetch(tillbehor_sql_query,(maskin,))
