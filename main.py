@@ -21,20 +21,21 @@ root = Tk()
 root.title("T-schakts delägarregister")
 root.geometry("600x400")
 root.resizable(False, False)
-#Hämtar databas informationen.
+
+#Hämtar databas informationen ifrån en config.ini fil.
 db_config=read_db_config()
 
-
+#Skapar en Databas klass med alla inbyggad funktioner färdiga som funktioner.
 class DB():
     def __init__(self, db_local):        
         self.connection=None
         self.connection = mysql.connector.connect(**db_local)
-
+    #Skapar cursorn och skickar in queryn tillsammans med argumenten.
     def query(self, sql, args):
         cursor = self.connection.cursor()
         cursor.execute(sql, args)
         return cursor
-
+    #Kör fetchall
     def fetch(self, sql, args):
         rows=[]
         cursor = self.query(sql,args)
@@ -42,7 +43,7 @@ class DB():
             rows=cursor.fetchall()
         cursor.close()
         return rows
-
+    #Kör fetchone
     def fetchone(self, sql, args):
         row = None
         cursor = self.query(sql, args)
@@ -50,31 +51,31 @@ class DB():
             row = cursor.fetchone()
         cursor.close()
         return row
-
+    #Kör en insert.
     def insert(self, sql ,args):
         cursor = self.query(sql, args)
         id = cursor.lastrowid
         self.connection.commit()
         cursor.close()
         return id
-    
+    #Kör en update.
     def update(self,sql,args):
         cursor = self.query(sql, args)
         rowcount = cursor.rowcount
         self.connection.commit()
         cursor.close()
         return rowcount
-
+    #Stänger ner anslutningen när den inte används längre. Garbage collectas.
     def __del__(self):
         print("Anslutningen bruten.")
         if self.connection!=None:
             self.connection.close()
 
-
+#Skapar en GUI klass, där allt 
 class GUI:
     
     def __init__(self, master):
-        
+        #Skapar framen allt annat ska hamna i. 
         home = Frame(master)
         home.pack()
 
@@ -117,8 +118,8 @@ class GUI:
         self.BtnSokTillbehor = Button(home, text=("Sök tillbehör"), command=self.hamtaMaskinerGenomTillbehor)
         self.BtnSokTillbehor.grid(row=5, column=4, sticky=E, pady=(30,0), padx=(0,15))
 
-        #self.fyllListbox()
         self.fyllListboxDelagare()
+    #Hämtar maskinerna som har ett tillbehör kopplat till sig vilket liknar tillbehöret man skrivit in i sökrutan.
     def hamtaMaskinerGenomTillbehor(self):
         entry = '{}%'.format(self.EntSokTillbehor.get())
         
@@ -173,6 +174,7 @@ class GUI:
                         s+=str(item[2])
                                                 
                 self.LbMaskiner.insert("end",s )
+    #Hämtar alla maskiner när programmet körs och fyller på LbMaskiner listan.
     def hamtaAllaMaskiner(self):
         selectedDelagare = self.LbDelagare.get(self.LbDelagare.curselection())
         indexSpace = selectedDelagare.index(" ")
@@ -232,13 +234,6 @@ class GUI:
                                                 
                 self.LbMaskiner.insert("end",s )
 
-    def fyllListbox(self):        
-        i = 0
-        while i < 10:
-            self.LbDelagare.insert("end", i)
-            i+=1
-            print(i) 
-
     #Fyller LbDelagare (Listboxen på Home-fliken) med delägarna ifrån databsen
     def fyllListboxDelagare(self):
         sql="SELECT Medlemsnummer, Fornamn, Efternamn, Foretagsnamn FROM foretagsregister"
@@ -264,7 +259,7 @@ class GUI:
             s+=str(item[3])                              
                 
             self.LbDelagare.insert("end", s)
-    
+    #Hämtar alla delägare som matchar siffrorna som skrivit i än så länge i delägar sökrutan.
     def hamtaDelagareFranEntry(self):
 
         entry = '{}%'.format(self.EntMedlemsnummer.get())
@@ -293,7 +288,7 @@ class GUI:
             s+=str(item[3])                              
                 
             self.LbDelagare.insert("end", s)
-
+    #Hämtar alla maskiner som matchar siffrorna som skrivit i än så länge i maskin sökrutan.
     def hamtaMaskinerFranEntry(self):
 
         entry = '{}%'.format(self.EntMaskinnummer.get())
@@ -325,7 +320,7 @@ class GUI:
                 s+=str(item[2])
 
             self.LbMaskiner.insert("end",s )
-
+    #Funktion som skapar PDF-rapporten miljödeklaration
     def miljodeklaration(self, maskinnummer):
 
         if len(maskinnummer) == 0:
@@ -490,7 +485,7 @@ class GUI:
             output.write(outputStream)
             outputStream.close()
             os.startfile("Miljödeklaration - " + str(maskinnummer) + ".pdf" )
-
+    #Funktion som skapar PDF-rapporten maskinpresentation
     def maskinpresentation(self, maskinnummer):     
 
         if len(maskinnummer) == 0:
@@ -603,11 +598,6 @@ class GUI:
             outputStream.close()
             #Öppnar dokumentet efter man skapat det. Måste ändra sökväg efter vi fixat servern.
             os.startfile("Maskinpresentation - " + maskinnummer + ".pdf" )
-
-    def on_closing():
-        pass
-
-
 
 #Dessa körs endast när denna fil körs som main. Om denna någon gång importeras till en annan fil så kommer dessa funktioner ej köras direkt.
 if __name__ == "__main__":
