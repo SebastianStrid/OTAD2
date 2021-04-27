@@ -122,13 +122,12 @@ class GUI:
     def hamtaMaskinerGenomTillbehor(self):
         entry = '{}%'.format(self.EntSokTillbehor.get())
         if len(entry)==0:
-            messagebox.showerror("Fel", "Du måste skriva i något i Tillbehörs sökrutan.") 
+            messagebox.showerror("Fel", "Du måste skriva i något i tillbehörs sökrutan.") 
         else:
             sql_query="""SELECT Maskinnummer, MarkeModell, Arsmodell FROM maskinregister WHERE maskinnummer in (select maskinnummer from tillbehor where tillbehor like %s)"""
             databas = DB(db_config)
             result =databas.fetch(sql_query, (entry,))        
-            
-                
+                            
             if self.LbMaskiner.index("end") != 0:
                 self.LbMaskiner.delete(0, "end")
                 for item in result:
@@ -184,8 +183,11 @@ class GUI:
         
         
         sql_query="""SELECT Maskinnummer, MarkeModell, Arsmodell FROM maskinregister WHERE Medlemsnummer = %s"""
-        databas = DB(db_config)
-        result =databas.fetch(sql_query, (delagare,))        
+        try:
+            databas = DB(db_config)
+            result =databas.fetch(sql_query, (delagare,))
+        except:
+            pass        
         
             
         if self.LbMaskiner.index("end") != 0:
@@ -234,13 +236,15 @@ class GUI:
                         s+=str(item[2])
                                                 
                 self.LbMaskiner.insert("end",s )
-
     #Fyller LbDelagare (Listboxen på Home-fliken) med delägarna ifrån databsen
     def fyllListboxDelagare(self):
         sql="SELECT Medlemsnummer, Fornamn, Efternamn, Foretagsnamn FROM foretagsregister"
         self.LbDelagare.delete(0, 'end')
-        test = DB(db_config)
-        delagareLista=test.fetch(sql, None)        
+        try:
+            test = DB(db_config)
+            delagareLista=test.fetch(sql, None)  
+        except:
+            pass      
         for item in delagareLista:
             item = list(item)
             if item[1] == None:
@@ -266,8 +270,11 @@ class GUI:
         entry = '{}%'.format(self.EntMedlemsnummer.get())
         sql_query = """SELECT Medlemsnummer, Fornamn, Efternamn, Foretagsnamn FROM foretagsregister WHERE Medlemsnummer LIKE %s"""
         delagareLista = []
-        databas = DB(db_config)
-        delagareLista = databas.fetch(sql_query, (entry,))
+        try:
+            databas = DB(db_config)
+            delagareLista = databas.fetch(sql_query, (entry,))
+        except:
+            pass
         self.LbDelagare.delete(0, 'end')
 
         for item in delagareLista:
@@ -505,8 +512,11 @@ class GUI:
             stringSelectedDelagare = str(maskinnummer[0:indexSpace])
             maskin = "".join(stringSelectedDelagare)
             maskin_sql_query = """SELECT Medlemsnummer, MarkeModell, Arsmodell, Registreringsnummer, ME_Klass, Maskintyp, Forarid FROM maskinregister WHERE Maskinnummer = %s"""
-            databas = DB(db_config)
-            maskin_resultat = databas.fetch(maskin_sql_query,(maskin,))
+            try:
+                databas = DB(db_config)
+                maskin_resultat = databas.fetch(maskin_sql_query,(maskin,))
+            except:
+                pass
 
             foretags_sql_query = """SELECT Foretagsnamn FROM foretagsregister WHERE medlemsnummer = %s"""
             foretag = databas.fetch(foretags_sql_query,(str(maskin_resultat[0][0]),))

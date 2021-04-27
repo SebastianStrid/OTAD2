@@ -7,11 +7,11 @@ def read_db_config(filename='config.ini', section='mysql'):
     :param section: section of database configuration
     :return: a dictionary of database parameters
     """
-    # create parser and read ini configuration file
+    # Skapar parsern och läser in filen.
     parser = ConfigParser()
     parser.read(filename)
 
-    # get section, default to mysql
+    # Letar upp Mysql sektionen i config filen och hämtar ut relevanta informationen.
     db = {}
     if parser.has_section(section):
         items = parser.items(section)
