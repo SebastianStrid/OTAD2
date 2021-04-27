@@ -27,30 +27,29 @@ def readAFile():
      filelist = file.readlines()
      file.close()
 
-def database():
-    #Skapar databasanslutningen
-    global filelist
-    global cursor
-    readAFile()
-    h = str(filelist[0])
-    _h = h[:-1]
-    u = str(filelist[1])
-    _u = u[:-1]
-    p = str(filelist[2])
-    _p = p[:-1]
-    _d = str(filelist[3])
-    print(_d)
-    try:
-        db = mysql.connector.connect(
-        host = _h ,
-        user = _u ,
-        password = _p ,
-        database = _d
-        )
-        cursor = db.cursor()
-    except Exception:
-        print("Databasuppkopplingen misslyckades!")
-        traceback.print_exc()
+
+#Skapar databasanslutningen
+global filelist
+readAFile()
+h = str(filelist[0])
+_h = h[:-1]
+u = str(filelist[1])
+_u = u[:-1]
+p = str(filelist[2])
+_p = p[:-1]
+_d = str(filelist[3])
+print(_d)
+try:
+    db = mysql.connector.connect(
+    host = _h ,
+    user = _u ,
+    password = _p ,
+    database = _d
+    )
+    cursor = db.cursor()
+except Exception:
+    print("Databasuppkopplingen misslyckades!")
+    traceback.print_exc()
 
 class GUI:
     
@@ -60,52 +59,54 @@ class GUI:
         home.pack()
 
         #Skapar de widgets vi har på Home-fliken
-        EntMedlemsnummer = Entry(home, width=5, text = "Medlemsnummer") 
-        EntMedlemsnummer.grid(row=1, column=1, sticky = W, pady =(10,0), padx=(10,0))
+        self.EntMedlemsnummer = Entry(home, width=5, text = "Medlemsnummer") 
+        self.EntMedlemsnummer.grid(row=1, column=1, sticky = W, pady =(10,0), padx=(10,0))
         #EntMedlemsnummer.bind("<KeyRelease>", lambda args: hamtaDelagareFranEntry())
 
-        EntMaskinnummer = Entry(home, width=5, text ="Maskinnummer") 
-        EntMaskinnummer.grid(row=1, column=3, sticky = W,  pady =(10,0), padx=(10,0))
+        self.EntMaskinnummer = Entry(home, width=5, text ="Maskinnummer") 
+        self.EntMaskinnummer.grid(row=1, column=3, sticky = W,  pady =(10,0), padx=(10,0))
         #EntMaskinnummer.bind("<KeyRelease>", lambda args: hamtaMaskinerFranEntry())
 
-        LbDelagare = Listbox(home, width = 60, height = 15, exportselection=0)
-        LbDelagare.grid(row = 2, column = 1, columnspan = 2, rowspan = 2,  pady =(10,0), padx=(10,0))
+        self.LbDelagare = Listbox(home, width = 60, height = 15, exportselection=0)
+        self.LbDelagare.grid(row = 2, column = 1, columnspan = 2, rowspan = 2,  pady =(10,0), padx=(10,0))
         #LbDelagare.bind('<<ListboxSelect>>', hamtaAllaMaskiner)
 
-        LbMaskiner = Listbox(home, width = 30, height = 15, exportselection=0)
-        LbMaskiner.grid(row = 2, column = 3, columnspan = 2, rowspan = 2,  pady =(10,0), padx=(10,0))
+        self.LbMaskiner = Listbox(home, width = 30, height = 15, exportselection=0)
+        self.LbMaskiner.grid(row = 2, column = 3, columnspan = 2, rowspan = 2,  pady =(10,0), padx=(10,0))
 
-        ScbDelagare = Scrollbar(home, orient="vertical")
-        ScbDelagare.grid(row = 2, column = 2, sticky = N+S+E, rowspan = 2)
-        ScbDelagare.config(command =LbDelagare.yview)
+        self.ScbDelagare = Scrollbar(home, orient="vertical")
+        self.ScbDelagare.grid(row = 2, column = 2, sticky = N+S+E, rowspan = 2)
+        self.ScbDelagare.config(command =self.LbDelagare.yview)
 
-        ScbDMaskiner = Scrollbar(home, orient="vertical")
-        ScbDMaskiner.grid(row = 2, column = 4, sticky = N+S+E, rowspan = 2)
-        ScbDMaskiner.config(command =LbMaskiner.yview)
+        self.ScbDMaskiner = Scrollbar(home, orient="vertical")
+        self.ScbDMaskiner.grid(row = 2, column = 4, sticky = N+S+E, rowspan = 2)
+        self.ScbDMaskiner.config(command =self.LbMaskiner.yview)
 
-        LbDelagare.config(yscrollcommand=ScbDelagare.set)
-        LbMaskiner.config(yscrollcommand=ScbDMaskiner.set)
+        self.LbDelagare.config(yscrollcommand=self.ScbDelagare.set)
+        self.LbMaskiner.config(yscrollcommand=self.ScbDMaskiner.set)
 
-        BtnMiljodeklaration = Button(home, text="Miljödeklaration")
-        BtnMiljodeklaration.grid(row=4, column=4, pady=(10,0), padx=(0,15), sticky=E, columnspan=2)
+        self.BtnMiljodeklaration = Button(home, text="Miljödeklaration")
+        self.BtnMiljodeklaration.grid(row=4, column=4, pady=(10,0), padx=(0,15), sticky=E, columnspan=2)
 
-        BtnMaskinpresentation = Button(home, text="Maskinpresentation")
-        BtnMaskinpresentation.grid(row=4, column=2, pady=(10,0), padx=(0,10), sticky=E, columnspan=2)
+        self.BtnMaskinpresentation = Button(home, text="Maskinpresentation")
+        self.BtnMaskinpresentation.grid(row=4, column=2, pady=(10,0), padx=(0,10), sticky=E, columnspan=2)
 
-        EntSokTillbehor = Entry(home, width= 10)
-        EntSokTillbehor.grid(row=5, column=2, columnspan=2, sticky=E, pady=(30,0), padx=(0,15))
+        self.EntSokTillbehor = Entry(home, width= 10)
+        self.EntSokTillbehor.grid(row=5, column=2, columnspan=2, sticky=E, pady=(30,0), padx=(0,15))
 
-        BtnSokTillbehor = Button(home, text=("Sök tillbehör"))
-        BtnSokTillbehor.grid(row=5, column=4, sticky=E, pady=(30,0), padx=(0,15))
+        self.BtnSokTillbehor = Button(home, text=("Sök tillbehör"))
+        self.BtnSokTillbehor.grid(row=5, column=4, sticky=E, pady=(30,0), padx=(0,15))
+
+        self.fyllListboxDelagare()
 
     #Fyller LbDelagare (Listboxen på Home-fliken) med delägarna ifrån databsen
-    def fyllListboxDelagare():
-
+    def fyllListboxDelagare(self):
+        
         global cursor
         cursor.execute("SELECT Medlemsnummer, Fornamn, Efternamn, Foretagsnamn FROM foretagsregister")
         delagareLista = []
         delagareLista = cursor.fetchall()
-        LbDelagare.delete(0, 'end')
+        self.LbDelagare.delete(0, 'end')
 
         for item in delagareLista:
             item = list(item)
@@ -125,11 +126,10 @@ class GUI:
             s+=" - "
             s+=str(item[3])                              
                 
-            LbDelagare.insert("end", s)
-    fyllListboxDelagare()
+            self.LbDelagare.insert("end", s)
+    
 
 #Globala variabler
-global cursor
 filePath = None
 imgNyBild = None
 medlemsnummer = ""
@@ -138,7 +138,7 @@ forarid = ""
 
 
 #Instansiera GUI
-database()
+
 
 #validera = root.register(valideraSiffror)
 if __name__ == "__main__":
