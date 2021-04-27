@@ -102,12 +102,65 @@ class GUI:
         self.EntSokTillbehor = Entry(home, width= 10)
         self.EntSokTillbehor.grid(row=5, column=2, columnspan=2, sticky=E, pady=(30,0), padx=(0,15))
 
-        self.BtnSokTillbehor = Button(home, text=("Sök tillbehör"))
+        self.BtnSokTillbehor = Button(home, text=("Sök tillbehör"), command=self.hamtaMaskinerGenomTillbehor)
         self.BtnSokTillbehor.grid(row=5, column=4, sticky=E, pady=(30,0), padx=(0,15))
 
         #self.fyllListbox()
         self.fyllListboxDelagare()
-    
+    def hamtaMaskinerGenomTillbehor(self):
+        entry = '{}%'.format(self.EntSokTillbehor.get())
+        
+        sql_query="""SELECT Maskinnummer, MarkeModell, Arsmodell FROM maskinregister WHERE maskinnummer in (select maskinnummer from tillbehor where tillbehor like %s)"""
+        databas = DB(db_config)
+        result =databas.fetch(sql_query, (entry,))        
+        
+            
+        if self.LbMaskiner.index("end") != 0:
+            self.LbMaskiner.delete(0, "end")
+            for item in result:
+                item = list(item)
+                if item[1] == None:
+                        item[1] = ""
+                if item[2] == None:
+                        item[2] = ""
+                
+                s=""
+                s += str(item[0])
+                if item[1] == "":
+                        s+= ""
+                else:
+                        s+= " - "
+                        s+=str(item[1])
+                if item[2] == "":
+                        s+= " "
+                else:
+                        s+= " - "
+                        s+=str(item[2])
+                        
+                self.LbMaskiner.insert("end",s )
+
+        else:
+            for item in result:
+                item = list(item)
+                if item[1] == None:
+                        item[1] = ""
+                if item[2] == None:
+                        item[2] = ""
+                
+                s=""
+                s += str(item[0])
+                if item[1] == "":
+                        s+= ""
+                else:
+                        s+= " - "
+                        s+=str(item[1])
+                if item[2] == "":
+                        s+= " "
+                else:
+                        s+= " - "
+                        s+=str(item[2])
+                                                
+                self.LbMaskiner.insert("end",s )
     def hamtaAllaMaskiner(self):
         selectedDelagare = self.LbDelagare.get(self.LbDelagare.curselection())
         indexSpace = selectedDelagare.index(" ")
@@ -176,7 +229,6 @@ class GUI:
 
     #Fyller LbDelagare (Listboxen på Home-fliken) med delägarna ifrån databsen
     def fyllListboxDelagare(self):
-        print("aaaaaaa")
         sql="SELECT Medlemsnummer, Fornamn, Efternamn, Foretagsnamn FROM foretagsregister"
         self.LbDelagare.delete(0, 'end')
         test = DB(db_config)
