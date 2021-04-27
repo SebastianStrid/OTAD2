@@ -61,15 +61,15 @@ class GUI:
         #Skapar de widgets vi har på Home-fliken
         self.EntMedlemsnummer = Entry(home, width=5, text = "Medlemsnummer") 
         self.EntMedlemsnummer.grid(row=1, column=1, sticky = W, pady =(10,0), padx=(10,0))
-        #EntMedlemsnummer.bind("<KeyRelease>", lambda args: hamtaDelagareFranEntry())
+        self.EntMedlemsnummer.bind("<KeyRelease>", lambda args: self.hamtaDelagareFranEntry())
 
         self.EntMaskinnummer = Entry(home, width=5, text ="Maskinnummer") 
         self.EntMaskinnummer.grid(row=1, column=3, sticky = W,  pady =(10,0), padx=(10,0))
-        #EntMaskinnummer.bind("<KeyRelease>", lambda args: hamtaMaskinerFranEntry())
+        self.EntMaskinnummer.bind("<KeyRelease>", lambda args: self.hamtaMaskinerFranEntry())
 
         self.LbDelagare = Listbox(home, width = 60, height = 15, exportselection=0)
         self.LbDelagare.grid(row = 2, column = 1, columnspan = 2, rowspan = 2,  pady =(10,0), padx=(10,0))
-        #LbDelagare.bind('<<ListboxSelect>>', hamtaAllaMaskiner)
+        self.LbDelagare.bind('<<ListboxSelect>>', lambda args: self.hamtaAllaMaskiner())
 
         self.LbMaskiner = Listbox(home, width = 30, height = 15, exportselection=0)
         self.LbMaskiner.grid(row = 2, column = 3, columnspan = 2, rowspan = 2,  pady =(10,0), padx=(10,0))
@@ -128,6 +128,124 @@ class GUI:
                 
             self.LbDelagare.insert("end", s)
     
+    #Fyller LbMaskiner (Listboxen på Home-fliken) med maskinerna ifrån databasen
+    def hamtaAllaMaskiner(self):
+        global medlemsnummer
+
+        selectedDelagare = self.LbDelagare.get(self.LbDelagare.curselection())
+        indexSpace = selectedDelagare.index(" ")
+        stringSelectedDelagare = str(selectedDelagare[0:indexSpace])
+        delagare = "".join(stringSelectedDelagare)
+        medlemsnummer = delagare
+        cursor.execute('SELECT Maskinnummer, MarkeModell, Arsmodell FROM maskinregister WHERE Medlemsnummer = ' + delagare + ';')
+        result = cursor.fetchall()
+            
+        if self.LbMaskiner.index("end") != 0:
+            self.LbMaskiner.delete(0, "end")
+            for item in result:
+                item = list(item)
+                if item[1] == None:
+                        item[1] = ""
+                if item[2] == None:
+                        item[2] = ""
+                
+                s=""
+                s += str(item[0])
+                if item[1] == "":
+                        s+= ""
+                else:
+                        s+= " - "
+                        s+=str(item[1])
+                if item[2] == "":
+                        s+= " "
+                else:
+                        s+= " - "
+                        s+=str(item[2])
+                        
+                self.LbMaskiner.insert("end",s )
+
+        else:
+            for item in result:
+                item = list(item)
+                if item[1] == None:
+                        item[1] = ""
+                if item[2] == None:
+                        item[2] = ""
+                
+                s=""
+                s += str(item[0])
+                if item[1] == "":
+                        s+= ""
+                else:
+                        s+= " - "
+                        s+=str(item[1])
+                if item[2] == "":
+                        s+= " "
+                else:
+                        s+= " - "
+                        s+=str(item[2])
+                                                
+                self.LbMaskiner.insert("end",s )
+
+    #Hämtar delägare efter det medlemsnummer som söks på i Home-fliken
+    def hamtaDelagareFranEntry(self):
+
+        cursor.execute("SELECT Medlemsnummer, Fornamn, Efternamn, Foretagsnamn FROM foretagsregister WHERE Medlemsnummer LIKE '" + self.EntMedlemsnummer.get() + "%'")
+        delagareLista = []
+        delagareLista = cursor.fetchall()
+        delagareLista = list(delagareLista)
+        self.LbDelagare.delete(0, 'end')
+
+        for item in delagareLista:
+            item = list(item)
+            if item[1] == None:
+                item[1] = ""
+            if item[2] == None:
+                item[2] = ""
+            s=""
+            s += str(item[0])
+            if item[1] == "":
+                s+= ""
+            else:
+                s+= " - "
+                s+=str(item[1])
+                s+= " "
+                s+=str(item[2])
+            s+=" - "
+            s+=str(item[3])                              
+                
+            self.LbDelagare.insert("end", s)
+    
+    #Hämta maskiner efter det maskinnummer som söks på i Home-fliken
+    def hamtaMaskinerFranEntry(self):
+
+        cursor.execute("SELECT Maskinnummer, MarkeModell, Arsmodell FROM maskinregister WHERE Maskinnummer LIKE '" + self.EntMaskinnummer.get() + "%'")
+        result = cursor.fetchall()
+        result = list(result)
+        self.LbMaskiner.delete(0, "end")   
+
+        for item in result:
+            item = list(item)
+            if item[1] == None:
+                item[1] = ""
+            if item[2] == None:
+                item[2] = ""
+
+            s=""
+            s += str(item[0])
+
+            if item[1] == "":
+                s+= " "
+            else:
+                s+= " - "
+                s+=str(item[1])
+            if item[2] == "":
+                s+= " "
+            else:
+                s+= " - "
+                s+=str(item[2])
+
+            self.LbMaskiner.insert("end",s )
 
 #Globala variabler
 filePath = None
