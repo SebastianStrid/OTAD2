@@ -87,6 +87,11 @@ class GUI:
         self.EntMaskinnummer.grid(row=1, column=3, sticky = W,  pady =(10,0), padx=(10,0))
         self.EntMaskinnummer.bind("<KeyRelease>", lambda args: self.hamtaMaskinerFranEntry())
 
+        self.lblForare = Label(home, text="Kopplad förare.")
+        self.lblForare.grid(column=5,row=3, sticky=N, pady=(10,0))
+        self.entForare = Entry(home,state=DISABLED)
+        self.entForare.grid(column=5, row=3, columnspan = 2, sticky=W+E+S, padx=(10,0),pady=(10,0))
+
         self.LbDelagare = Listbox(home, width = 60, height = 15, exportselection=0)
         self.LbDelagare.grid(row = 2, column = 1, columnspan = 2, rowspan = 2,  pady =(10,0), padx=(10,0))
         self.LbDelagare.bind('<<ListboxSelect>>', lambda x:self.hamtaAllaMaskiner())
@@ -96,10 +101,13 @@ class GUI:
 
         self.LbMaskiner = Listbox(home, width = 30, height = 15, exportselection=0)
         self.LbMaskiner.grid(row = 2, column = 3, columnspan = 2, rowspan = 2,  pady =(10,0), padx=(10,0))
-        self.LbMaskiner.bind('<<ListboxSelect>>', lambda args: self.fyllTillbehor())
+        self.LbMaskiner.bind('<<ListboxSelect>>', lambda args: self.fyllTillbehorOchForare())
 
         self.LblMaskiner = Label(home, text="Maskiner")
         self.LblMaskiner.grid(row=1, column= 4, pady =(10,0), padx=(0,0), sticky=W)
+
+        self.LbTillbehor = Listbox(home, width=30, exportselection =0)
+        self.LbTillbehor.grid(row=2, column=5, columnspan=2,  pady =(10,0), padx=(10,0), sticky=N+S+W+E)
 
         self.ScbDelagare = Scrollbar(home, orient="vertical")
         self.ScbDelagare.grid(row = 2, column = 2, sticky = N+S+E, rowspan = 2)
@@ -109,8 +117,13 @@ class GUI:
         self.ScbDMaskiner.grid(row = 2, column = 4, sticky = N+S+E, rowspan = 2)
         self.ScbDMaskiner.config(command =self.LbMaskiner.yview)
 
+        self.ScbTillbehor = Scrollbar(home, orient="vertical")
+        self.ScbTillbehor.grid(row = 2, column = 6, sticky = N+S+E)
+        self.ScbTillbehor.config(command =self.LbTillbehor.yview)
+
         self.LbDelagare.config(yscrollcommand=self.ScbDelagare.set)
         self.LbMaskiner.config(yscrollcommand=self.ScbDMaskiner.set)
+        self.LbTillbehor.config(yscrollcommand=self.ScbTillbehor.set)
 
         self.BtnMiljodeklaration = Button(home, text="Miljödeklaration", command=lambda:self.miljodeklaration())
         self.BtnMiljodeklaration.grid(row=4, column=0, pady=(10,0), padx=(10,15), sticky=W, columnspan=2)
@@ -124,13 +137,73 @@ class GUI:
         self.BtnSokTillbehor = Button(home, text=("Sök tillbehör"), command=self.hamtaMaskinerGenomTillbehor)
         self.BtnSokTillbehor.grid(row=4, column=4, sticky=E, pady=(10,0), padx=(0,10))
 
-        self.LbTillbehor = Listbox(home, width=30, height = 15, exportselection =0)
-        self.LbTillbehor.grid(row=2, column=5, columnspan=2, rowspan=2,  pady =(10,0), padx=(10,0))
+        self.entSokForare = Entry(home)
+        self.entSokForare.grid(row=4, column=5,sticky=E, pady=(10,0),padx=(10,0))
+
+        self.btnSokForare = Button(home, text=("Sök förare"),command = self.hamtaMaskinerGenomForare)
+        self.btnSokForare.grid(row=4, column=6, sticky=E, pady=(10,0),padx=(10,0))
+
+        
 
         self.LblTillbehor = Label(home, text="Tillbehör")
-        self.LblTillbehor.grid(row=1, column=6, pady =(10,0), padx=(10,0), sticky=W)
+        self.LblTillbehor.grid(row=1, column=5, pady =(10,0), padx=(10,0), sticky=E)
 
         self.fyllListboxDelagare()
+    def hamtaMaskinerGenomForare(self):
+        entry = '{}%'.format(self.entSokForare.get())
+        if len(entry)==0:
+            messagebox.showerror("Fel", "Du måste skriva i något i tillbehörs sökrutan.") 
+        else:
+            sql_query="""SELECT Maskinnummer, MarkeModell, Arsmodell FROM maskinregister WHERE forarid in (select forarid from forare where namn like %s)"""
+            databas = DB(db_config)
+            result =databas.fetch(sql_query, (entry,))        
+                            
+            if self.LbMaskiner.index("end") != 0:
+                self.LbMaskiner.delete(0, "end")
+                for item in result:
+                    item = list(item)
+                    if item[1] == None:
+                            item[1] = ""
+                    if item[2] == None:
+                            item[2] = ""
+                    
+                    s=""
+                    s += str(item[0])
+                    if item[1] == "":
+                            s+= ""
+                    else:
+                            s+= " - "
+                            s+=str(item[1])
+                    if item[2] == "":
+                            s+= " "
+                    else:
+                            s+= " - "
+                            s+=str(item[2])
+                            
+                    self.LbMaskiner.insert("end",s )
+
+            else:
+                for item in result:
+                    item = list(item)
+                    if item[1] == None:
+                            item[1] = ""
+                    if item[2] == None:
+                            item[2] = ""
+                    
+                    s=""
+                    s += str(item[0])
+                    if item[1] == "":
+                            s+= ""
+                    else:
+                            s+= " - "
+                            s+=str(item[1])
+                    if item[2] == "":
+                            s+= " "
+                    else:
+                            s+= " - "
+                            s+=str(item[2])
+                                                    
+                    self.LbMaskiner.insert("end",s )
     #Hämtar maskinerna som har ett tillbehör kopplat till sig vilket liknar tillbehöret man skrivit in i sökrutan.
     def hamtaMaskinerGenomTillbehor(self):
         self.LbTillbehor.delete(0,'end')
@@ -630,8 +703,9 @@ class GUI:
             #Öppnar dokumentet efter man skapat det. Måste ändra sökväg efter vi fixat servern.
             os.startfile("Maskinpresentation - " + maskinnummer + ".pdf" )
     #Funktion som fyller LbTillbehor när man trycker på en maskin i LbMaskiner
-    def fyllTillbehor(self):
+    def fyllTillbehorOchForare(self):
         sql="SELECT Tillbehor FROM tillbehor WHERE Maskinnummer =%s"
+        sql_forare = """select namn from forare where forarid = (select forarid from maskinregister where maskinnummer =%s)"""
         maskinnummer=""
         maskinnummer = self.LbMaskiner.get(self.LbMaskiner.curselection())
         
@@ -641,10 +715,20 @@ class GUI:
         databas = DB(db_config)
         tillbehor_resultat = databas.fetch(sql,(maskin,))
 
+        forare_namn=databas.fetchone(sql_forare,(maskin,))
+
         self.LbTillbehor.delete(0,'end')
         for x in tillbehor_resultat:
             self.LbTillbehor.insert('end', x[0])
+
+        self.entForare.config(state=NORMAL)
+        self.entForare.delete(0,'end')
+        if forare_namn is not None:
+            self.entForare.insert(0,forare_namn[0])
+        self.entForare.config(state=DISABLED)
+
     
+
 #Dessa körs endast när denna fil körs som main. Om denna någon gång importeras till en annan fil så kommer dessa funktioner ej köras direkt.
 if __name__ == "__main__":
     #Instansierar en ny GUI klass.
