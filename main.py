@@ -563,7 +563,6 @@ class GUI:
             c.drawString(467, 710, str(maskin))
             
             counter = 0
-            print(tillbehor)
             for x in tillbehor:
                 counter +=1
                 
