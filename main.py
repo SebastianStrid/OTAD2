@@ -18,8 +18,8 @@ from python_mysql_dbconfig import read_db_config
 
 #Skapar och namnger huvudfönstret samt sätter storleken på fönstret
 root = Tk()
-root.title("T-schakts delägarregister")
-root.geometry("600x400")
+root.title("T-schakts rapportgenerator")
+root.geometry("800x340")
 root.resizable(False, False)
 
 #Hämtar databas informationen ifrån en config.ini fil.
@@ -91,8 +91,15 @@ class GUI:
         self.LbDelagare.grid(row = 2, column = 1, columnspan = 2, rowspan = 2,  pady =(10,0), padx=(10,0))
         self.LbDelagare.bind('<<ListboxSelect>>', lambda x:self.hamtaAllaMaskiner())
 
+        self.LblDelagare = Label(home, text="Delägare")
+        self.LblDelagare.grid(row=1, column =1,  pady =(10,0), padx=(0,0), sticky=E)
+
         self.LbMaskiner = Listbox(home, width = 30, height = 15, exportselection=0)
         self.LbMaskiner.grid(row = 2, column = 3, columnspan = 2, rowspan = 2,  pady =(10,0), padx=(10,0))
+        self.LbMaskiner.bind('<<ListboxSelect>>', lambda args: self.fyllTillbehor())
+
+        self.LblMaskiner = Label(home, text="Maskiner")
+        self.LblMaskiner.grid(row=1, column= 4, pady =(10,0), padx=(0,0), sticky=W)
 
         self.ScbDelagare = Scrollbar(home, orient="vertical")
         self.ScbDelagare.grid(row = 2, column = 2, sticky = N+S+E, rowspan = 2)
@@ -106,20 +113,27 @@ class GUI:
         self.LbMaskiner.config(yscrollcommand=self.ScbDMaskiner.set)
 
         self.BtnMiljodeklaration = Button(home, text="Miljödeklaration", command=lambda:self.miljodeklaration())
-        self.BtnMiljodeklaration.grid(row=4, column=4, pady=(10,0), padx=(0,15), sticky=E, columnspan=2)
+        self.BtnMiljodeklaration.grid(row=4, column=0, pady=(10,0), padx=(10,15), sticky=W, columnspan=2)
 
         self.BtnMaskinpresentation = Button(home, text="Maskinpresentation",command=lambda:self.maskinpresentation())
-        self.BtnMaskinpresentation.grid(row=4, column=2, pady=(10,0), padx=(0,10), sticky=E, columnspan=2)
+        self.BtnMaskinpresentation.grid(row=4, column=1, pady=(10,0), padx=(0,140), sticky=E, columnspan=2)
 
         self.EntSokTillbehor = Entry(home, width= 10)
-        self.EntSokTillbehor.grid(row=5, column=2, columnspan=2, sticky=E, pady=(30,0), padx=(0,15))
+        self.EntSokTillbehor.grid(row=4, column=2, columnspan=2, sticky=E, pady=(10,0), padx=(0,0))
 
         self.BtnSokTillbehor = Button(home, text=("Sök tillbehör"), command=self.hamtaMaskinerGenomTillbehor)
-        self.BtnSokTillbehor.grid(row=5, column=4, sticky=E, pady=(30,0), padx=(0,15))
+        self.BtnSokTillbehor.grid(row=4, column=4, sticky=E, pady=(10,0), padx=(0,15))
+
+        self.LbTillbehor = Listbox(home, width=30, height = 15, exportselection =0)
+        self.LbTillbehor.grid(row=2, column=5, columnspan=2, rowspan=2,  pady =(10,0), padx=(10,0))
+
+        self.LblTillbehor = Label(home, text="Tillbehör")
+        self.LblTillbehor.grid(row=1, column=6, pady =(10,0), padx=(10,0), sticky=W)
 
         self.fyllListboxDelagare()
     #Hämtar maskinerna som har ett tillbehör kopplat till sig vilket liknar tillbehöret man skrivit in i sökrutan.
     def hamtaMaskinerGenomTillbehor(self):
+        self.LbTillbehor.delete(0,'end')
         entry = '{}%'.format(self.EntSokTillbehor.get())
         if len(entry)==0:
             messagebox.showerror("Fel", "Du måste skriva i något i tillbehörs sökrutan.") 
@@ -615,7 +629,22 @@ class GUI:
             outputStream.close()
             #Öppnar dokumentet efter man skapat det. Måste ändra sökväg efter vi fixat servern.
             os.startfile("Maskinpresentation - " + maskinnummer + ".pdf" )
+    #Funktion som fyller LbTillbehor när man trycker på en maskin i LbMaskiner
+    def fyllTillbehor(self):
+        sql="SELECT Tillbehor FROM tillbehor WHERE Maskinnummer =%s"
+        maskinnummer=""
+        maskinnummer = self.LbMaskiner.get(self.LbMaskiner.curselection())
+        
+        indexSpace = maskinnummer.index(" ")
+        stringSelectedMaskin = str(maskinnummer[0:indexSpace])
+        maskin = "".join(stringSelectedMaskin)
+        databas = DB(db_config)
+        tillbehor_resultat = databas.fetch(sql,(maskin,))
 
+        self.LbTillbehor.delete(0,'end')
+        for x in tillbehor_resultat:
+            self.LbTillbehor.insert('end', x[0])
+    
 #Dessa körs endast när denna fil körs som main. Om denna någon gång importeras till en annan fil så kommer dessa funktioner ej köras direkt.
 if __name__ == "__main__":
     #Instansierar en ny GUI klass.
