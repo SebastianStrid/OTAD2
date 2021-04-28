@@ -118,11 +118,11 @@ class GUI:
         self.BtnMaskinpresentation = Button(home, text="Maskinpresentation",command=lambda:self.maskinpresentation())
         self.BtnMaskinpresentation.grid(row=4, column=1, pady=(10,0), padx=(0,140), sticky=E, columnspan=2)
 
-        self.EntSokTillbehor = Entry(home, width= 10)
-        self.EntSokTillbehor.grid(row=4, column=2, columnspan=2, sticky=E, pady=(10,0), padx=(0,0))
+        self.EntSokTillbehor = Entry(home, width= 15)
+        self.EntSokTillbehor.grid(row=4, column=3, columnspan=2, sticky=E, pady=(10,0), padx=(0,90))
 
         self.BtnSokTillbehor = Button(home, text=("Sök tillbehör"), command=self.hamtaMaskinerGenomTillbehor)
-        self.BtnSokTillbehor.grid(row=4, column=4, sticky=E, pady=(10,0), padx=(0,15))
+        self.BtnSokTillbehor.grid(row=4, column=4, sticky=E, pady=(10,0), padx=(0,10))
 
         self.LbTillbehor = Listbox(home, width=30, height = 15, exportselection =0)
         self.LbTillbehor.grid(row=2, column=5, columnspan=2, rowspan=2,  pady =(10,0), padx=(10,0))
