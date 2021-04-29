@@ -433,10 +433,12 @@ class GUI:
             stringSelectedDelagare = str(maskinnummer[0:indexSpace])
             maskin = "".join(stringSelectedDelagare)
             databas = DB(db_config)
-            maskin_resultat = databas.fetch(maskin_sql_query,(maskin,))
+            maskin_resultat=databas.fetchone(maskin_sql_query,(maskin,))
+            print(maskin_resultat[4])
 
+            
             delagare_sql_query = """SELECT Fornamn, Efternamn, Foretagsnamn, Gatuadress, Postnummer, Postadress FROM foretagsregister WHERE Medlemsnummer = %s"""
-            delagarInfoLista = databas.fetch(delagare_sql_query, (maskin_resultat[0][4],))
+            delagarInfoLista = databas.fetchone(delagare_sql_query, (maskin_resultat[4],))
 
             forsakring_sql_query ="""SELECT forsakringsgivare FROM forsakringsgivare WHERE idforsakringsgivare = '1'"""
             forsakring = databas.fetchone(forsakring_sql_query, None)
@@ -446,124 +448,138 @@ class GUI:
             c = canvas.Canvas(packet, pagesize=letter)
 
             for item in range(len(maskin_resultat)):
-                if maskin_resultat[item] == None:
-                    maskin_resultat[item] = ""
+                if item == None:
+                        item[0] = ""
 
             for item in range(len(delagarInfoLista)):
                 if delagarInfoLista[item] == None:
-                    delagarInfoLista[item] = ""
+                        delagarInfoLista[item] = ""
+
+            c.setFontSize(11)
 
             #Översta delen
-            c.drawString(130, 722, str(maskin_resultat[0][4]))
-            c.drawString(130, 702, str(delagarInfoLista[0][2]))
-            c.drawString(130, 682, str(delagarInfoLista[0][0]))
-            c.drawString(195, 682, str(delagarInfoLista[0][1]))
-            c.drawString(130, 662, str(delagarInfoLista[0][3]))
-            c.drawString(130, 642, str(delagarInfoLista[0][4]))
-            c.drawString(190, 642, str(delagarInfoLista[0][5]))
-            c.drawString(470, 722, str(maskin_resultat[0][0]))
-            c.drawString(458, 702, str(maskin_resultat[0][1]))
-            c.drawString(458, 682, str(maskin_resultat[0][6]))
-            c.drawString(458, 662, str(maskin_resultat[0][26]))
-            c.drawString(458, 642, str(maskin_resultat[0][2]))
-            c.drawString(458, 622, str(maskin_resultat[0][27]))
+            c.drawString(130, 722, str(maskin_resultat[4]))
+            c.drawString(130, 702, str(delagarInfoLista[2]))
+            c.drawString(130, 682, str(delagarInfoLista[0]))
+            c.drawString(195, 682, str(delagarInfoLista[1]))
+            c.drawString(130, 662, str(delagarInfoLista[3]))
+            c.drawString(130, 642, str(delagarInfoLista[4]))
+            c.drawString(190, 642, str(delagarInfoLista[5]))
+            c.drawString(470, 722, str(maskin_resultat[0]))
+            c.drawString(458, 702, str(maskin_resultat[1]))
+            if maskin_resultat[6] is not None:
+                c.drawString(458, 682, str(maskin_resultat[6]))
+            c.drawString(458, 662, str(maskin_resultat[26]))
+            if maskin_resultat[2] is not None:
+                c.drawString(458, 642, str(maskin_resultat[2]))
+            c.drawString(458, 622, str(maskin_resultat[27]))
 
             #Motor
-            c.drawString(50, 540, str(maskin_resultat[0][8]))
-            c.drawString(160, 540, str(maskin_resultat[0][9]))
-            c.drawString(270, 540, str(maskin_resultat[0][10]))
+            c.drawString(50, 540, str(maskin_resultat[8]))
+            c.drawString(160, 540, str(maskin_resultat[9]))
+            if maskin_resultat[10] is not None:
+                c.drawString(270, 540, str(maskin_resultat[10]))
 
             #Eftermonterad avgasreninsutrustning
-            if maskin_resultat[0][14] == 1:
+            if maskin_resultat[14] == 1:
                 c.drawString(50, 482, "Ja")
-            elif maskin_resultat[0][14] == 0:
+            elif maskin_resultat[14] == 0:
                 c.drawString(50, 482, "Nej")
 
-            if maskin_resultat[0][15] == 1:
+            if maskin_resultat[15] == 1:
                 c.drawString(120, 482, "Ja")
-            elif maskin_resultat[0][15] == 0:
+            elif maskin_resultat[15] == 0:
                 c.drawString(120, 482, "Nej")
 
-            if maskin_resultat[0][12] == 1:
+            if maskin_resultat[12] == 1:
                 c.drawString(195, 482, "Ja")
-            elif maskin_resultat[0][12] == 0:
+            elif maskin_resultat[12] == 0:
                 c.drawString(195, 482, "Nej")
 
-            if maskin_resultat[0][11] == 1:
+            if maskin_resultat[11] == 1:
                 c.drawString(280, 482, "Ja")
-            elif maskin_resultat[0][11] == 0:
+            elif maskin_resultat[11] == 0:
                 c.drawString(280, 482, "Nej")
 
 
             #Bullernivå
-            c.drawString(340, 482, str(maskin_resultat[0][29]))
-            c.drawString(430, 482, str(maskin_resultat[0][31]))
+            c.drawString(340, 482, str(maskin_resultat[29]))
+            c.drawString(430, 482, str(maskin_resultat[31]))
 
             #Oljor och smörjmedel - Volym, liter
-            if len(maskin_resultat[0][16]) < 25:
-                c.drawString(50, 417, str(maskin_resultat[0][16]))
-            else:
-                c.setFontSize(9)
-                c.drawString(50, 417, str(maskin_resultat[0][16]))
-                c.setFontSize(11)
-
-            if len(maskin_resultat[0][18]) < 25:
-                c.drawString(50, 385, str(maskin_resultat[0][18]))
-            else:
-                c.setFontSize(9)
-                c.drawString(50, 385, str(maskin_resultat[0][18]))
-                c.setFontSize(11)
-
-            if len(maskin_resultat[0][20]) < 25:
-                c.drawString(50, 355, str(maskin_resultat[0][20]))
-            else:
-                c.setFontSize(9)
-                c.drawString(50, 355, str(maskin_resultat[0][20]))
-                c.setFontSize(11)
-
-
-            c.drawString(50, 325, str(maskin_resultat[0][24]))
-            c.drawString(205, 420, str(maskin_resultat[0][17]))
-            c.drawString(205, 390, str(maskin_resultat[0][19]))
-            c.drawString(205, 360, str(maskin_resultat[0][21]))
+            if maskin_resultat[16] is not None:
+                if len(maskin_resultat[16]) < 25:
+                    c.drawString(50, 417, str(maskin_resultat[16]))
+                else:
+                    c.setFontSize(9)
+                    c.drawString(50, 417, str(maskin_resultat[16]))
+                    c.setFontSize(11)
+            if maskin_resultat[18] is not None:
+                if len(maskin_resultat[18]) < 25:
+                    c.drawString(50, 385, str(maskin_resultat[18]))
+                else:
+                    c.setFontSize(9)
+                    c.drawString(50, 385, str(maskin_resultat[18]))
+                    c.setFontSize(11)
+            if maskin_resultat[20] is not None:
+                if len(maskin_resultat[20]) < 25:
+                    c.drawString(50, 355, str(maskin_resultat[20]))
+                else:
+                    c.setFontSize(9)
+                    c.drawString(50, 355, str(maskin_resultat[20]))
+                    c.setFontSize(11)
+                
+                
+            c.drawString(50, 325, str(maskin_resultat[24]))
+            c.drawString(205, 420, str(maskin_resultat[17]))
+            c.drawString(205, 390, str(maskin_resultat[19]))
+            c.drawString(205, 360, str(maskin_resultat[21]))
+            
 
             #Miljöklassificering
-            c.drawString(340, 420, str(maskin_resultat[0][30]))
-            if maskin_resultat[0][22] == 1:
+            c.drawString(340, 420, str(maskin_resultat[30]))
+            if maskin_resultat[22] == 1:
                 c.drawString(345, 330, "Ja")
-            elif maskin_resultat[0][22] == 0:
+            elif maskin_resultat[22] == 0:
                 c.drawString(345, 330, "Nej")
 
             #Övrigt
-            c.drawString(50, 244, str(maskin_resultat[0][13]))
-            if maskin_resultat[0][37] == 1:
+            c.drawString(50, 244, str(maskin_resultat[13]))
+            if maskin_resultat[37] == 1:
                 c.drawString(125, 244, "Ja")
-            elif maskin_resultat[0][37] == 0:
+            elif maskin_resultat[37] == 0:
                 c.drawString(125, 244, "Nej")
-            c.drawString(205, 244, str(maskin_resultat[0][25]))
-            if maskin_resultat[0][35] == 1:
+            c.drawString(205, 244, str(maskin_resultat[25]))
+            if maskin_resultat[35] == 1:
                 c.drawString(375, 244, "Ja")
-            elif maskin_resultat[0][35] == 0:
+            elif maskin_resultat[35] == 0:
                 c.drawString(375, 244, "Nej")
-            c.drawString(470, 210, str(maskin_resultat[0][38]))
-            c.drawString(50, 210, str(maskin_resultat[0][33]))
-            c.drawString(205, 210, str(maskin_resultat[0][34]))
-            if maskin_resultat[0][36] == 1:
+            c.drawString(470, 210, str(maskin_resultat[38]))
+            if maskin_resultat[33] is not None:
+                if len(maskin_resultat[33]) > 25:
+                    c.setFontSize(9)
+                    c.drawString(50, 210, str(maskin_resultat[33]))
+                    c.setFontSize(11)
+                else:
+                    c.drawString(50, 210, str(maskin_resultat[33]))
+            c.drawString(205, 210, str(maskin_resultat[34]))
+            if maskin_resultat[36] == 1:
                 c.drawString(375, 210, "Ja")
-            elif maskin_resultat[0][36] == 0:
+            elif maskin_resultat[36] == 0:
                 c.drawString(375, 210, "Nej") 
-            c.drawString(470, 210, str(maskin_resultat[0][39]))
+            c.drawString(470, 210, str(maskin_resultat[39]))
 
             #Bränsle
-            c.drawString(50, 155, str(maskin_resultat[0][23]))
+            c.drawString(50, 155, str(maskin_resultat[23]))
 
             #Försärking
-            if maskin_resultat[0][3] == 1:
+            if maskin_resultat[3] == 1:
                 c.drawString(50, 102, forsakring[0])
-            c.drawString(240, 102, str(maskin_resultat[0][7]))
-            if maskin_resultat[0][7] != "":
-                c.drawString(305, 102, "-")
-            c.drawString(315, 102, str(maskin_resultat[0][42]))
+            if maskin_resultat[7] is not None:    
+                c.drawString(240, 102, str(maskin_resultat[7]))
+                if maskin_resultat[7] != "":
+                    c.drawString(305, 102, "-")
+                c.drawString(315, 102, str(maskin_resultat[42]))
 
             #Datum
             c.drawString(435, 52, str(datetime.date(datetime.now())))
@@ -580,10 +596,10 @@ class GUI:
             page.mergePage(new_pdf.getPage(0))
             output.addPage(page)
 
-            outputStream = open( "Miljödeklaration - " + str(maskinnummer) + ".pdf", "wb")
+            outputStream = open( "Miljödeklaration - " + str(maskin) + ".pdf", "wb")
             output.write(outputStream)
             outputStream.close()
-            os.startfile("Miljödeklaration - " + str(maskinnummer) + ".pdf" )
+            os.startfile("Miljödeklaration - " + str(maskin) + ".pdf" )
     #Funktion som skapar PDF-rapporten maskinpresentation
     def maskinpresentation(self):
         maskinnummer =""
@@ -603,12 +619,12 @@ class GUI:
             maskin_sql_query = """SELECT Medlemsnummer, MarkeModell, Arsmodell, Registreringsnummer, ME_Klass, Maskintyp, Forarid FROM maskinregister WHERE Maskinnummer = %s"""
             try:
                 databas = DB(db_config)
-                maskin_resultat = databas.fetch(maskin_sql_query,(maskin,))
+                maskin_resultat=databas.fetchone(maskin_sql_query,(maskin,))
             except:
                 pass
 
             foretags_sql_query = """SELECT Foretagsnamn FROM foretagsregister WHERE medlemsnummer = %s"""
-            foretag = databas.fetch(foretags_sql_query,(str(maskin_resultat[0][0]),))
+            foretag = databas.fetchone(foretags_sql_query,(str(maskin_resultat[0]),))
             
             tillbehor_sql_query="""SELECT tillbehor FROM tillbehor WHERE Maskinnummer =%s"""           
             tillbehor = databas.fetch(tillbehor_sql_query,(maskin,))
@@ -616,13 +632,13 @@ class GUI:
             
             bild_sql_query = """SELECT sokvag FROM bilder WHERE Maskinnummer = %s order by bildid desc LIMIT 1;"""
             bild = databas.fetchone(bild_sql_query, (maskin,))
-
-            if maskin_resultat[0][6] is not None:
+            print(maskin_resultat)
+            if maskin_resultat[6] is not None:
                 forare_sql_query = """select namn from forare where forarid = %s"""
-                forarnamn = databas.fetchone(forare_sql_query, (str(maskin_resultat[0][6]),))
+                forarnamn = databas.fetchone(forare_sql_query, (str(maskin_resultat[6]),))
 
                 referens_sql_query="""SELECT Beskrivning FROM referens WHERE forarid = %s"""
-                referenser = databas.fetch(referens_sql_query, (str(maskin_resultat[0][6]),))
+                referenser = databas.fetch(referens_sql_query, (str(maskin_resultat[6]),))
                 referenser = list(referenser)
 
             else:
@@ -640,23 +656,29 @@ class GUI:
 
             if bild is not None:
                 c.drawImage(bild[0], 72, 134, 450, 340)
-            c.drawString(133, 710, str(maskin_resultat[0][0])) 
-            c.drawString(455, 690, str(maskin_resultat[0][1]))
-            c.drawString(455, 670, str(maskin_resultat[0][2]))
-            c.drawString(455, 650, str(maskin_resultat[0][3]))
-            c.drawString(455, 630, str(maskin_resultat[0][4]))
-            c.drawString(455, 610, str(maskin_resultat[0][5]))
+            if maskin_resultat[0] is not None:
+                c.drawString(133, 710, str(maskin_resultat[0]))
+            if maskin_resultat[1] is not None:
+                c.drawString(455, 690, str(maskin_resultat[1]))
+            if maskin_resultat[2] is not None:
+                c.drawString(455, 670, str(maskin_resultat[2]))
+            if maskin_resultat[3] is not None:
+                c.drawString(455, 650, str(maskin_resultat[3]))
+            if maskin_resultat[4] is not None:
+                c.drawString(455, 630, str(maskin_resultat[4]))
+            if maskin_resultat[5] is not None:
+                c.drawString(455, 610, str(maskin_resultat[5]))
             if forarnamn is not None:
-                c.drawString(133, 670, forarnamn)
-            c.drawString(133, 690, str(foretag[0][0]))
-            c.drawString(467, 710, str(maskin))
+                c.drawString(133, 670, str(forarnamn[0]))
+            if foretag[0] is not None:
+                c.drawString(133, 690, str(foretag[0]))
+            if maskin is not None:
+                c.drawString(470, 712, str(maskin))
             
             counter = 0
             for x in tillbehor:
                 counter +=1
-                
                 s = x[0]
-                
                 if(counter == len(tillbehor)):
                         s+=""
                 else:
@@ -678,11 +700,11 @@ class GUI:
                         rad1+=s      
 
             
-            c.drawString(140, 558, str(rad1))
-            c.drawString(140, 538, str(rad2))
-            c.drawString(140, 518, str(rad3))
-            c.drawString(140, 498, str(rad4))
-            c.drawString(140, 478, str(rad5))
+            c.drawString(142, 561, str(rad1))
+            c.drawString(142, 541, str(rad2))
+            c.drawString(142, 521, str(rad3))
+            c.drawString(142, 501, str(rad4))
+            c.drawString(142, 481, str(rad5))
             if referenser is not None and len(referenser) != 0:
                 c.drawString(152, 112, str(referenser[0][0]))
                 c.drawString(152, 86, str(referenser[1][0]))
@@ -699,11 +721,11 @@ class GUI:
             page.mergePage(new_pdf.getPage(0))
             output.addPage(page)
             #Fixa i framtiden så att man kan använda sig av custom paths (till servern) för att spara dokumenten på andra ställen.
-            outputStream = open( "Maskinpresentation - " + maskinnummer + ".pdf", "wb")
+            outputStream = open("Maskinpresentationer/Maskinpresentation - " + maskin + ".pdf", "wb")
             output.write(outputStream)
             outputStream.close()
             #Öppnar dokumentet efter man skapat det. Måste ändra sökväg efter vi fixat servern.
-            os.startfile("Maskinpresentation - " + maskinnummer + ".pdf" )
+            os.startfile("Maskinpresentationer\Maskinpresentation - " + maskin + ".pdf")
     #Funktion som fyller LbTillbehor när man trycker på en maskin i LbMaskiner
     def fyllTillbehorOchForare(self):
         sql="SELECT Tillbehor FROM tillbehor WHERE Maskinnummer =%s"
