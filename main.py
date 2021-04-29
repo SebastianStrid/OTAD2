@@ -267,6 +267,7 @@ class GUI:
         indexSpace = selectedDelagare.index(" ")
         stringSelectedDelagare = str(selectedDelagare[0:indexSpace])
         delagare = "".join(stringSelectedDelagare)
+        self.LbTillbehor.delete(0,'end')
         
         
         sql_query="""SELECT Maskinnummer, MarkeModell, Arsmodell FROM maskinregister WHERE Medlemsnummer = %s"""
@@ -327,6 +328,7 @@ class GUI:
     def fyllListboxDelagare(self):
         sql="SELECT Medlemsnummer, Fornamn, Efternamn, Foretagsnamn FROM foretagsregister"
         self.LbDelagare.delete(0, 'end')
+        
         try:
             test = DB(db_config)
             delagareLista=test.fetch(sql, None)  
