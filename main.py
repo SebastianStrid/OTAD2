@@ -34,13 +34,14 @@ class DB():
     #Skapar cursorn och skickar in queryn tillsammans med argumenten.
     def query(self, sql, args):
         cursor = self.connection.cursor()
-        cursor.execute(sql)
+        cursor.execute(sql, args)
         return cursor
     #Kör fetchall
     def fetch(self, sql, args):
         rows=[]
         cursor = self.query(sql,args)
         res = cursor.fetchall()
+        print(res)
         if len(res)!=0:
             rows=res
         cursor.close()
