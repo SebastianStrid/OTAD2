@@ -15,6 +15,7 @@ from datetime import datetime,date
 import os
 import traceback
 from python_mysql_dbconfig import read_db_config
+import pyodbc
 
 #Skapar och namnger huvudfönstret samt sätter storleken på fönstret
 root = Tk()
