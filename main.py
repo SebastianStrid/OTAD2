@@ -30,18 +30,19 @@ db_config=read_db_config()
 class DB():
     def __init__(self, db_local):        
         self.connection=None
-        self.connection = mysql.connector.connect(**db_local)
+        self.connection = pyodbc.connect('DRIVER={SQL Server};Server=DESKTOP-25OMDE7\SQLEXPRESS;DATABASE=tschakt;Truested_Connection=yes;')
     #Skapar cursorn och skickar in queryn tillsammans med argumenten.
     def query(self, sql, args):
         cursor = self.connection.cursor()
-        cursor.execute(sql, args)
+        cursor.execute(sql)
         return cursor
     #Kör fetchall
     def fetch(self, sql, args):
         rows=[]
         cursor = self.query(sql,args)
-        if cursor.with_rows:
-            rows=cursor.fetchall()
+        res = cursor.fetchall()
+        if len(res)!=0:
+            rows=res
         cursor.close()
         return rows
     #Kör fetchone
@@ -155,7 +156,7 @@ class GUI:
         if len(entry)==0:
             messagebox.showerror("Fel", "Du måste skriva i något i tillbehörs sökrutan.") 
         else:
-            sql_query="""SELECT Maskinnummer, MarkeModell, Arsmodell FROM maskinregister WHERE forarid in (select forarid from forare where namn like %s)"""
+            sql_query="""SELECT Maskinnummer, MarkeModell, Arsmodell FROM maskinregister WHERE forarid in (select forarid from forare where namn like ?)"""
             databas = DB(db_config)
             result =databas.fetch(sql_query, (entry,))        
                             
@@ -212,7 +213,7 @@ class GUI:
         if len(entry)==0:
             messagebox.showerror("Fel", "Du måste skriva i något i tillbehörs sökrutan.") 
         else:
-            sql_query="""SELECT Maskinnummer, MarkeModell, Arsmodell FROM maskinregister WHERE maskinnummer in (select maskinnummer from tillbehor where tillbehor like %s)"""
+            sql_query="""SELECT Maskinnummer, MarkeModell, Arsmodell FROM maskinregister WHERE maskinnummer in (select maskinnummer from tillbehor where tillbehor like ?)"""
             databas = DB(db_config)
             result =databas.fetch(sql_query, (entry,))        
                             
@@ -269,14 +270,15 @@ class GUI:
         stringSelectedDelagare = str(selectedDelagare[0:indexSpace])
         delagare = "".join(stringSelectedDelagare)
         self.LbTillbehor.delete(0,'end')
+        print(delagare)
         
         
-        sql_query="""SELECT Maskinnummer, MarkeModell, Arsmodell FROM maskinregister WHERE Medlemsnummer = %s"""
+        sql_query="SELECT Maskinnummer, MarkeModell, Arsmodell FROM tschakt.maskinregister WHERE Medlemsnummer = ?"
         try:
             databas = DB(db_config)
             result =databas.fetch(sql_query, (delagare,))
         except:
-            pass        
+            traceback.print_exc()        
         
             
         if self.LbMaskiner.index("end") != 0:
@@ -327,14 +329,15 @@ class GUI:
                 self.LbMaskiner.insert("end",s )
     #Fyller LbDelagare (Listboxen på Home-fliken) med delägarna ifrån databsen
     def fyllListboxDelagare(self):
-        sql="SELECT Medlemsnummer, Fornamn, Efternamn, Foretagsnamn FROM foretagsregister"
+        sql="SELECT Medlemsnummer, Fornamn, Efternamn, Foretagsnamn FROM tschakt.foretagsregister"
         self.LbDelagare.delete(0, 'end')
         
         try:
             test = DB(db_config)
-            delagareLista=test.fetch(sql, None)  
-        except:
-            pass      
+            delagareLista=test.fetch(sql, None)
+             
+        except Exception:
+            traceback.print_exc()       
         for item in delagareLista:
             item = list(item)
             if item[1] == None:
@@ -358,7 +361,7 @@ class GUI:
     def hamtaDelagareFranEntry(self):
 
         entry = '{}%'.format(self.EntMedlemsnummer.get())
-        sql_query = """SELECT Medlemsnummer, Fornamn, Efternamn, Foretagsnamn FROM foretagsregister WHERE Medlemsnummer LIKE %s"""
+        sql_query = """SELECT Medlemsnummer, Fornamn, Efternamn, Foretagsnamn FROM foretagsregister WHERE Medlemsnummer LIKE ?"""
         delagareLista = []
         try:
             databas = DB(db_config)
@@ -390,7 +393,7 @@ class GUI:
     def hamtaMaskinerFranEntry(self):
 
         entry = '{}%'.format(self.EntMaskinnummer.get())
-        sql_query="""SELECT Maskinnummer, MarkeModell, Arsmodell FROM maskinregister WHERE Maskinnummer LIKE %s"""
+        sql_query="""SELECT Maskinnummer, MarkeModell, Arsmodell FROM maskinregister WHERE Maskinnummer LIKE ?"""
         result = []
         databas = DB(db_config)
         result = databas.fetch(sql_query, (entry,))
@@ -428,7 +431,7 @@ class GUI:
         if len(maskinnummer) == 0:
             messagebox.showerror("Fel", "Ingen maskin är vald.")    
         else:
-            maskin_sql_query = """select * from maskinregister where maskinnummer = %s"""
+            maskin_sql_query = """select * from maskinregister where maskinnummer = ?"""
            
             indexSpace = maskinnummer.index(" ")
             stringSelectedDelagare = str(maskinnummer[0:indexSpace])
@@ -438,7 +441,7 @@ class GUI:
             print(maskin_resultat[4])
 
             
-            delagare_sql_query = """SELECT Fornamn, Efternamn, Foretagsnamn, Gatuadress, Postnummer, Postadress FROM foretagsregister WHERE Medlemsnummer = %s"""
+            delagare_sql_query = """SELECT Fornamn, Efternamn, Foretagsnamn, Gatuadress, Postnummer, Postadress FROM foretagsregister WHERE Medlemsnummer = ?"""
             delagarInfoLista = databas.fetchone(delagare_sql_query, (maskin_resultat[4],))
 
             forsakring_sql_query ="""SELECT forsakringsgivare FROM forsakringsgivare WHERE idforsakringsgivare = '1'"""
@@ -617,28 +620,28 @@ class GUI:
             indexSpace = maskinnummer.index(" ")
             stringSelectedDelagare = str(maskinnummer[0:indexSpace])
             maskin = "".join(stringSelectedDelagare)
-            maskin_sql_query = """SELECT Medlemsnummer, MarkeModell, Arsmodell, Registreringsnummer, ME_Klass, Maskintyp, Forarid FROM maskinregister WHERE Maskinnummer = %s"""
+            maskin_sql_query = """SELECT Medlemsnummer, MarkeModell, Arsmodell, Registreringsnummer, ME_Klass, Maskintyp, Forarid FROM maskinregister WHERE Maskinnummer = ?"""
             try:
                 databas = DB(db_config)
                 maskin_resultat=databas.fetchone(maskin_sql_query,(maskin,))
             except:
                 pass
 
-            foretags_sql_query = """SELECT Foretagsnamn FROM foretagsregister WHERE medlemsnummer = %s"""
+            foretags_sql_query = """SELECT Foretagsnamn FROM foretagsregister WHERE medlemsnummer = ?"""
             foretag = databas.fetchone(foretags_sql_query,(str(maskin_resultat[0]),))
             
-            tillbehor_sql_query="""SELECT tillbehor FROM tillbehor WHERE Maskinnummer =%s"""           
+            tillbehor_sql_query="""SELECT tillbehor FROM tillbehor WHERE Maskinnummer =?"""           
             tillbehor = databas.fetch(tillbehor_sql_query,(maskin,))
 
             
-            bild_sql_query = """SELECT sokvag FROM bilder WHERE Maskinnummer = %s order by bildid desc LIMIT 1;"""
+            bild_sql_query = """SELECT sokvag FROM bilder WHERE Maskinnummer = ? order by bildid desc LIMIT 1;"""
             bild = databas.fetchone(bild_sql_query, (maskin,))
             print(maskin_resultat)
             if maskin_resultat[6] is not None:
-                forare_sql_query = """select namn from forare where forarid = %s"""
+                forare_sql_query = """select namn from forare where forarid = ?"""
                 forarnamn = databas.fetchone(forare_sql_query, (str(maskin_resultat[6]),))
 
-                referens_sql_query="""SELECT Beskrivning FROM referens WHERE forarid = %s"""
+                referens_sql_query="""SELECT Beskrivning FROM referens WHERE forarid = ?"""
                 referenser = databas.fetch(referens_sql_query, (str(maskin_resultat[6]),))
                 referenser = list(referenser)
 
@@ -729,8 +732,8 @@ class GUI:
             os.startfile("Maskinpresentationer\Maskinpresentation - " + maskin + ".pdf")
     #Funktion som fyller LbTillbehor när man trycker på en maskin i LbMaskiner
     def fyllTillbehorOchForare(self):
-        sql="SELECT Tillbehor FROM tillbehor WHERE Maskinnummer =%s"
-        sql_forare = """select namn from forare where forarid = (select forarid from maskinregister where maskinnummer =%s)"""
+        sql="SELECT Tillbehor FROM tillbehor WHERE Maskinnummer =?"
+        sql_forare = """select namn from forare where forarid = (select forarid from maskinregister where maskinnummer =?)"""
         maskinnummer=""
         maskinnummer = self.LbMaskiner.get(self.LbMaskiner.curselection())
         
