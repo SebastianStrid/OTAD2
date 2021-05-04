@@ -1,16 +1,11 @@
 #Importerar Tkinter (GUI), PIL (Bilder), PyPDF2 (För att läsa & skriva PDF), reportlab (För att skapa PDF), tkcalendar (Datepicker) och MySQL Connector (SQL)
 from tkinter import *
 from tkinter import ttk, messagebox
-from PIL import ImageTk,Image
 from PyPDF2 import PdfFileWriter, PdfFileReader
 import io
 from reportlab.pdfgen import canvas
 from reportlab.lib.pagesizes import letter
-import PIL
-import mysql.connector
-from tkinter.simpledialog import askstring
-from tkinter import filedialog
-from tkcalendar import DateEntry
+#import mysql.connector
 from datetime import datetime,date
 import os
 import traceback
@@ -22,6 +17,15 @@ root = Tk()
 root.title("T-schakts rapportgenerator")
 root.geometry("800x340")
 root.resizable(False, False)
+
+#-----------Validering----------#
+#Validerar entrys så att endast siffror går att använda i dem.
+def valideraSiffror(input):
+    if input.isdigit() and len(input) < 7 or len(input)==0 :
+        return True
+    else:
+        return False 
+validera = root.register(valideraSiffror)
 
 #Hämtar databas informationen ifrån en config.ini fil.
 db_config=read_db_config()
@@ -77,19 +81,18 @@ class DB():
             self.connection.close()
 
 #Skapar en GUI klass, allt utseende och majoriteten av funktionerna skapas här.
-class GUI:
-    
+class GUI:    
     def __init__(self, master):
         #Skapar framen allt annat ska hamna i. 
         home = Frame(master)
         home.pack()
 
         #Skapar de widgets vi har på Home-fliken
-        self.EntMedlemsnummer = Entry(home, width=5, text = "Medlemsnummer") 
+        self.EntMedlemsnummer = Entry(home, width=5, text = "Medlemsnummer",validate = "key", validatecommand=(validera, "%P")) 
         self.EntMedlemsnummer.grid(row=1, column=1, sticky = W, pady =(10,0), padx=(10,0))
         self.EntMedlemsnummer.bind("<KeyRelease>", lambda args: self.hamtaDelagareFranEntry())
 
-        self.EntMaskinnummer = Entry(home, width=5, text ="Maskinnummer") 
+        self.EntMaskinnummer = Entry(home, width=5, text ="Maskinnummer",validate ="key", validatecommand=(validera, "%P")) 
         self.EntMaskinnummer.grid(row=1, column=3, sticky = W,  pady =(10,0), padx=(10,0))
         self.EntMaskinnummer.bind("<KeyRelease>", lambda args: self.hamtaMaskinerFranEntry())
 
@@ -593,7 +596,6 @@ class GUI:
             c.drawString(435, 52, str(datetime.date(datetime.now())))
 
             c.save()
-
             packet.seek(0)
             new_pdf = PdfFileReader(packet)
 
@@ -761,7 +763,9 @@ class GUI:
             self.entForare.insert(0,forare_namn[0][0])
         self.entForare.config(state=DISABLED)
 
-    
+
+
+  
 
 #Dessa körs endast när denna fil körs som main. Om denna någon gång importeras till en annan fil så kommer dessa funktioner ej köras direkt.
 if __name__ == "__main__":
