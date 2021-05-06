@@ -32,9 +32,12 @@ db_config=read_db_config()
 
 #Skapar en Databas klass med alla inbyggad funktioner färdiga som funktioner.
 class DB():
-    def __init__(self, db_local):        
-        self.connection=None
-        self.connection = pyodbc.connect('DRIVER={SQL Server};Server=DESKTOP-25OMDE7\SQLEXPRESS;DATABASE=tschakt;Truested_Connection=yes;')
+    def __init__(self, db_local):
+        try:        
+            self.connection=None
+            self.connection = pyodbc.connect('DSN=Tschakt2;Trusted_Connection=yes;')
+        except Exception:
+            traceback.print_exc()
     #Skapar cursorn och skickar in queryn tillsammans med argumenten.
     def query(self, sql, args):
         cursor = self.connection.cursor()
