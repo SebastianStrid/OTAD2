@@ -166,7 +166,7 @@ class GUI:
         if len(entry)==0:
             messagebox.showerror("Fel", "Du måste skriva i något i tillbehörs sökrutan.") 
         else:
-            sql_query="""SELECT Maskinnummer, MarkeModell, Arsmodell FROM tschakt.maskinregister WHERE forarid in (select forarid from tschakt.forare where namn like ?)"""
+            sql_query="""SELECT Maskinnummer, MarkeModell, Arsmodell FROM tschakt.maskinregister WHERE forarid in (select forarid from tschakt.forare where namn like ?) order by maskinnummer asc"""
             databas = DB(db_config)
             result =databas.fetch(sql_query, (entry,))        
                             
@@ -223,7 +223,7 @@ class GUI:
         if len(entry)==0:
             messagebox.showerror("Fel", "Du måste skriva i något i tillbehörs sökrutan.") 
         else:
-            sql_query="""SELECT Maskinnummer, MarkeModell, Arsmodell FROM tschakt.maskinregister WHERE maskinnummer in (select maskinnummer from tschakt.tillbehor where tillbehor like ?)"""
+            sql_query="""SELECT Maskinnummer, MarkeModell, Arsmodell FROM tschakt.maskinregister WHERE maskinnummer in (select maskinnummer from tschakt.tillbehor where tillbehor like ?) order by maskinnummer asc"""
             databas = DB(db_config)
             result =databas.fetch(sql_query, (entry,))        
                             
@@ -283,7 +283,7 @@ class GUI:
         print(delagare)
         
         
-        sql_query="SELECT Maskinnummer, MarkeModell, Arsmodell FROM tschakt.maskinregister WHERE Medlemsnummer = ?"
+        sql_query="SELECT Maskinnummer, MarkeModell, Arsmodell FROM tschakt.maskinregister WHERE Medlemsnummer = ? order by maskinnummer asc"
         try:
             databas = DB(db_config)
             result =databas.fetch(sql_query, (delagare,))
@@ -403,7 +403,7 @@ class GUI:
     def hamtaMaskinerFranEntry(self):
 
         entry = '{}%'.format(self.EntMaskinnummer.get())
-        sql_query="""SELECT Maskinnummer, MarkeModell, Arsmodell FROM tschakt.maskinregister WHERE Maskinnummer LIKE ?"""
+        sql_query="""SELECT Maskinnummer, MarkeModell, Arsmodell FROM tschakt.maskinregister WHERE Maskinnummer LIKE ? order by maskinnummer asc"""
         result = []
         databas = DB(db_config)
         result = databas.fetch(sql_query, (entry,))
@@ -638,11 +638,11 @@ class GUI:
             foretags_sql_query = """SELECT Foretagsnamn FROM tschakt.foretagsregister WHERE medlemsnummer = ?"""
             foretag = databas.fetchone(foretags_sql_query,(str(maskin_resultat[0]),))[0]
             
-            tillbehor_sql_query="""SELECT tillbehor FROM tschakt.tillbehor WHERE Maskinnummer =?"""           
+            tillbehor_sql_query="""SELECT Tillbehor FROM tschakt.tillbehor WHERE maskinid = (select maskinid from tschakt.maskinregister where maskinnummer = ?)"""           
             tillbehor = databas.fetch(tillbehor_sql_query,(maskin,))
 
             
-            bild_sql_query = """SELECT top 1 sokvag FROM tschakt.bilder WHERE Maskinnummer = ? order by bildid desc;"""
+            bild_sql_query = """SELECT top 1 sokvag FROM tschakt.bilder WHERE maskinid = (select maskinid from tschakt.maskinregister where maskinnummer = ?) order by bildid desc;"""
             try:
                 bild = databas.fetchone(bild_sql_query, (maskin,))[0]
             except:
@@ -742,14 +742,15 @@ class GUI:
             os.startfile("Maskinpresentationer\Maskinpresentation - " + maskin + ".pdf")
     #Funktion som fyller LbTillbehor när man trycker på en maskin i LbMaskiner
     def fyllTillbehorOchForare(self):
-        sql="SELECT Tillbehor FROM tschakt.tillbehor WHERE Maskinnummer =?"
-        sql_forare = """select namn from tschakt.forare where forarid = (select forarid from tschakt.maskinregister where maskinnummer =?)"""
+        sql="SELECT Tillbehor FROM tschakt.tillbehor WHERE maskinid = (select maskinid from tschakt.maskinregister where maskinnummer = ?)"
+        sql_forare = """select namn from tschakt.forare where forarid = (select forarid from tschakt.maskinregister where maskinnummer = ?)"""
         maskinnummer=""
         maskinnummer = self.LbMaskiner.get(self.LbMaskiner.curselection())
         
         indexSpace = maskinnummer.index(" ")
         stringSelectedMaskin = str(maskinnummer[0:indexSpace])
         maskin = "".join(stringSelectedMaskin)
+        print(maskin)
         databas = DB(db_config)
         tillbehor_resultat = databas.fetch(sql,(maskin,))
 
