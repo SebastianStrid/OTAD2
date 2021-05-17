@@ -28,8 +28,10 @@ def valideraSiffror(input):
 validera = root.register(valideraSiffror)
 
 #Hämtar databas informationen ifrån en config.ini fil.
-db_config=read_db_config()
-
+try:
+    db_config=read_db_config()
+except:
+    db_config=""
 #Skapar en Databas klass med alla inbyggad funktioner färdiga som funktioner.
 class DB():
     def __init__(self, db_local):
@@ -223,7 +225,7 @@ class GUI:
         if len(entry)==0:
             messagebox.showerror("Fel", "Du måste skriva i något i tillbehörs sökrutan.") 
         else:
-            sql_query="""SELECT Maskinnummer, MarkeModell, Arsmodell FROM tschakt.maskinregister WHERE maskinnummer in (select maskinnummer from tschakt.tillbehor where tillbehor like ?) order by maskinnummer asc"""
+            sql_query="""SELECT Maskinnummer, MarkeModell, Arsmodell FROM tschakt.maskinregister WHERE maskinid in (select maskinID from tschakt.tillbehor where tillbehor like ?) order by maskinnummer asc"""
             databas = DB(db_config)
             result =databas.fetch(sql_query, (entry,))        
                             
