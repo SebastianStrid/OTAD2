@@ -652,10 +652,11 @@ class GUI:
             if maskin_resultat[6] is not None:
                 forare_sql_query = """select namn from tschakt.forare where forarid = ?"""
                 forarnamn = databas.fetchone(forare_sql_query, (str(maskin_resultat[6]),))[0]
-
+                
                 referens_sql_query="""SELECT Beskrivning FROM tschakt.referens WHERE forarid = ?"""
-                referenser = databas.fetch(referens_sql_query, (str(maskin_resultat[6]),))[0]
+                referenser = databas.fetch(referens_sql_query, (str(maskin_resultat[6]),))                
                 referenser = list(referenser)
+                
 
             else:
                 forarnamn = None
@@ -721,6 +722,7 @@ class GUI:
             c.drawString(142, 521, str(rad3))
             c.drawString(142, 501, str(rad4))
             c.drawString(142, 481, str(rad5))
+            
             if referenser is not None and len(referenser) != 0:
                 c.drawString(152, 112, str(referenser[0][0]))
                 c.drawString(152, 86, str(referenser[1][0]))
