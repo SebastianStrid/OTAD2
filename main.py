@@ -570,7 +570,7 @@ class GUI:
                 c.drawString(375, 244, "Ja")
             elif maskin_resultat[35] == 0:
                 c.drawString(375, 244, "Nej")
-            c.drawString(470, 210, str(maskin_resultat[38]))
+            c.drawString(470, 244, str(maskin_resultat[38]))
             if maskin_resultat[33] is not None:
                 if len(maskin_resultat[33]) > 25:
                     c.setFontSize(9)
@@ -652,7 +652,7 @@ class GUI:
             if maskin_resultat[6] is not None:
                 forare_sql_query = """select namn from tschakt.forare where forarid = ?"""
                 forarnamn = databas.fetchone(forare_sql_query, (str(maskin_resultat[6]),))[0]
-                
+
                 referens_sql_query="""SELECT Beskrivning FROM tschakt.referens WHERE forarid = ?"""
                 referenser = databas.fetch(referens_sql_query, (str(maskin_resultat[6]),))                
                 referenser = list(referenser)
