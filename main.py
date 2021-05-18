@@ -163,15 +163,23 @@ class GUI:
         self.LblTillbehor.grid(row=1, column=5, pady =(10,0), padx=(10,0), sticky=E)
 
         self.fyllListboxDelagare()
+    def tomTillbehor(self):
+        self.LbTillbehor.delete(0,'end')
+    def tomForare(self):
+        self.entForare.config(state=NORMAL)
+        self.entForare.delete(0,'end')
+        self.entForare.config(state=DISABLED)
     def hamtaMaskinerGenomForare(self):
         entry = '{}%'.format(self.entSokForare.get())
         if len(entry)==0:
-            messagebox.showerror("Fel", "Du måste skriva i något i tillbehörs sökrutan.") 
+            messagebox.showerror("Fel", "Du måste skriva i något i Förare sökrutan.") 
         else:
             sql_query="""SELECT Maskinnummer, MarkeModell, Arsmodell FROM tschakt.maskinregister WHERE forarid in (select forarid from tschakt.forare where namn like ?) order by maskinnummer asc"""
             databas = DB(db_config)
-            result =databas.fetch(sql_query, (entry,))        
-                            
+            result =databas.fetch(sql_query, ("%"+entry+"%",))     
+
+            self.tomForare()
+            self.tomTillbehor()        
             if self.LbMaskiner.index("end") != 0:
                 self.LbMaskiner.delete(0, "end")
                 for item in result:
@@ -282,7 +290,9 @@ class GUI:
         stringSelectedDelagare = str(selectedDelagare[0:indexSpace])
         delagare = "".join(stringSelectedDelagare)
         self.LbTillbehor.delete(0,'end')
-        print(delagare)
+
+        self.tomForare()
+        self.tomTillbehor()
         
         
         sql_query="SELECT Maskinnummer, MarkeModell, Arsmodell FROM tschakt.maskinregister WHERE Medlemsnummer = ? order by maskinnummer asc"
@@ -724,8 +734,13 @@ class GUI:
             c.drawString(142, 481, str(rad5))
             
             if referenser is not None and len(referenser) != 0:
-                c.drawString(152, 112, str(referenser[0][0]))
-                c.drawString(152, 86, str(referenser[1][0]))
+               c.drawString(152, 156, str(referenser[0][0]))
+               if len(referenser) > 1:
+                    c.drawString(152, 130, str(referenser[1][0]))
+                    if len(referenser) > 2:
+                         c.drawString(152, 104, str(referenser[2][0]))
+                         if len(referenser) > 3:
+                              c.drawString(152, 78, str(referenser[3][0]))
 
             c.save() 
 
@@ -754,22 +769,22 @@ class GUI:
         indexSpace = maskinnummer.index(" ")
         stringSelectedMaskin = str(maskinnummer[0:indexSpace])
         maskin = "".join(stringSelectedMaskin)
-        print(maskin)
         databas = DB(db_config)
         tillbehor_resultat = databas.fetch(sql,(maskin,))
 
         forare_namn=databas.fetchone(sql_forare,(maskin,))
 
 
-        self.LbTillbehor.delete(0,'end')
+        self.tomTillbehor()
         for x in tillbehor_resultat:
             self.LbTillbehor.insert('end', x[0])
 
-        self.entForare.config(state=NORMAL)
-        self.entForare.delete(0,'end')
+        self.tomForare()
         if forare_namn is not None:
+            self.entForare.config(state=NORMAL)
             self.entForare.insert(0,forare_namn[0][0])
-        self.entForare.config(state=DISABLED)
+            self.entForare.config(state=DISABLED)
+        
 
 
 
