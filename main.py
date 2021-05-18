@@ -15,7 +15,7 @@ import pyodbc
 #Skapar och namnger huvudfönstret samt sätter storleken på fönstret
 root = Tk()
 root.title("T-schakts rapportgenerator")
-root.geometry("800x340")
+root.geometry("850x340")
 root.resizable(False, False)
 
 #-----------Validering----------#
@@ -113,7 +113,7 @@ class GUI:
         self.LblDelagare = Label(home, text="Delägare")
         self.LblDelagare.grid(row=1, column =1,  pady =(10,0), padx=(0,0), sticky=E)
 
-        self.LbMaskiner = Listbox(home, width = 30, height = 15, exportselection=0)
+        self.LbMaskiner = Listbox(home, width = 40, height = 15, exportselection=0)
         self.LbMaskiner.grid(row = 2, column = 3, columnspan = 2, rowspan = 2,  pady =(10,0), padx=(10,0))
         self.LbMaskiner.bind('<<ListboxSelect>>', lambda args: self.fyllTillbehorOchForare())
 
@@ -145,7 +145,7 @@ class GUI:
         self.BtnMaskinpresentation = Button(home, text="Maskinpresentation",command=lambda:self.maskinpresentation())
         self.BtnMaskinpresentation.grid(row=4, column=1, pady=(10,0), padx=(0,140), sticky=E, columnspan=2)
 
-        self.EntSokTillbehor = Entry(home, width= 15)
+        self.EntSokTillbehor = Entry(home, width= 25)
         self.EntSokTillbehor.grid(row=4, column=3, columnspan=2, sticky=E, pady=(10,0), padx=(0,90))
 
         self.BtnSokTillbehor = Button(home, text=("Sök tillbehör"), command=self.hamtaMaskinerGenomTillbehor)
@@ -163,8 +163,10 @@ class GUI:
         self.LblTillbehor.grid(row=1, column=5, pady =(10,0), padx=(10,0), sticky=E)
 
         self.fyllListboxDelagare()
+    #Återanvändningsbar metod så att man ej behöver skriva om detta på flera olika ställen.    
     def tomTillbehor(self):
         self.LbTillbehor.delete(0,'end')
+    #Återanvändningsbar metod så att man ej behöver skriva om detta på flera olika ställen.
     def tomForare(self):
         self.entForare.config(state=NORMAL)
         self.entForare.delete(0,'end')
