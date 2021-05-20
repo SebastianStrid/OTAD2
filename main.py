@@ -171,6 +171,7 @@ class GUI:
         self.entForare.config(state=NORMAL)
         self.entForare.delete(0,'end')
         self.entForare.config(state=DISABLED)
+    #Söker efter förare och visar de maskiner som har en förare kopplad till sig som stämmer överens med sökningen.
     def hamtaMaskinerGenomForare(self):
         entry = '{}%'.format(self.entSokForare.get())
         if len(entry)==0:
@@ -354,6 +355,7 @@ class GUI:
     #Fyller LbDelagare (Listboxen på Home-fliken) med delägarna ifrån databsen
     def fyllListboxDelagare(self):
         sql="SELECT Medlemsnummer, Fornamn, Efternamn, Foretagsnamn FROM tschakt.foretagsregister"
+        
         self.LbDelagare.delete(0, 'end')
         
         try:
@@ -462,7 +464,7 @@ class GUI:
             maskin = "".join(stringSelectedDelagare)
             databas = DB(db_config)
             maskin_resultat=databas.fetchone(maskin_sql_query,(maskin,))[0]
-            print(maskin_resultat[4])
+            
 
             
             delagare_sql_query = """SELECT Fornamn, Efternamn, Foretagsnamn, Gatuadress, Postnummer, Postadress FROM tschakt.foretagsregister WHERE Medlemsnummer = ?"""
@@ -682,9 +684,11 @@ class GUI:
             rad4=""
             rad5=""
             y=1
-
-            if bild is not None:
-                c.drawImage(bild[0], 72, 134, 450, 340)
+            try:
+                if bild is not None:
+                    c.drawImage(bild[0], 72, 134, 450, 340)
+            except:
+                pass
             if maskin_resultat[0] is not None:
                 c.drawString(133, 710, str(maskin_resultat[0]))
             if maskin_resultat[1] is not None:
