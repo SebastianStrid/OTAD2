@@ -561,9 +561,9 @@ class GUI:
                 
                 
             c.drawString(50, 325, str(maskin_resultat[24]))
-            c.drawString(205, 420, str(maskin_resultat[17]))
-            c.drawString(205, 390, str(maskin_resultat[19]))
-            c.drawString(205, 360, str(maskin_resultat[21]))
+            c.drawString(205, 417, str(maskin_resultat[17]))
+            c.drawString(205, 385, str(maskin_resultat[19]))
+            c.drawString(205, 355, str(maskin_resultat[21]))
             
 
             #Miljöklassificering
@@ -600,7 +600,7 @@ class GUI:
             c.drawString(470, 210, str(maskin_resultat[39]))
 
             #Bränsle
-            c.drawString(50, 155, str(maskin_resultat[23]))
+            c.drawString(50, 150, str(maskin_resultat[23]))
 
             #Försärking
             if maskin_resultat[3] == 1:
@@ -686,7 +686,7 @@ class GUI:
             y=1
             try:
                 if bild is not None:
-                    c.drawImage(bild[0], 72, 134, 450, 340)
+                    c.drawImage(bild[0], 72, 175, 445, 300)
             except:
                 pass
             if maskin_resultat[0] is not None:
