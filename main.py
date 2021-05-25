@@ -478,8 +478,8 @@ class GUI:
             c = canvas.Canvas(packet, pagesize=letter)
 
             for item in range(len(maskin_resultat)):
-                if item == None:
-                        item[0] = ""
+                if maskin_resultat[item] == None:
+                        maskin_resultat[item] = ""
 
             for item in range(len(delagarInfoLista)):
                 if delagarInfoLista[item] == None:
