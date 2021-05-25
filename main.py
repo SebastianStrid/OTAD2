@@ -625,10 +625,10 @@ class GUI:
             page.mergePage(new_pdf.getPage(0))
             output.addPage(page)
 
-            outputStream = open( "Miljödeklaration - " + str(maskin) + ".pdf", "wb")
+            outputStream = open("Miljödeklarationer\Miljödeklaration - " + str(maskin) + ".pdf", "wb")
             output.write(outputStream)
             outputStream.close()
-            os.startfile("Miljödeklaration - " + str(maskin) + ".pdf" )
+            os.startfile("Miljödeklarationer\Miljödeklaration - " + str(maskin) + ".pdf" )
     #Funktion som skapar PDF-rapporten maskinpresentation
     def maskinpresentation(self):
         maskinnummer =""
