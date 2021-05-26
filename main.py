@@ -173,7 +173,7 @@ class GUI:
         self.entForare.config(state=DISABLED)
     #Söker efter förare och visar de maskiner som har en förare kopplad till sig som stämmer överens med sökningen.
     def hamtaMaskinerGenomForare(self):
-        entry = '{}%'.format(self.entSokForare.get())
+        entry = '%{}%'.format(self.entSokForare.get())
         if len(entry)==0:
             messagebox.showerror("Fel", "Du måste skriva i något i Förare sökrutan.") 
         else:
@@ -232,7 +232,7 @@ class GUI:
     #Hämtar maskinerna som har ett tillbehör kopplat till sig vilket liknar tillbehöret man skrivit in i sökrutan.
     def hamtaMaskinerGenomTillbehor(self):
         self.LbTillbehor.delete(0,'end')
-        entry = '{}%'.format(self.EntSokTillbehor.get())
+        entry = '%{}%'.format(self.EntSokTillbehor.get())
         if len(entry)==0:
             messagebox.showerror("Fel", "Du måste skriva i något i tillbehörs sökrutan.") 
         else:
